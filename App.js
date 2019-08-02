@@ -1,12 +1,12 @@
 import React from 'react';
-import {TouchableOpacity, StyleSheet, Text, View } from 'react-native';
+import {TextInput, TouchableOpacity, StyleSheet, Text, View } from 'react-native';
 import {vibrate} from './utils';
 
 var pomodoroSetting = 5
 var breakSetting = 3
 
 
-class Timer extends React.Component {
+export default class App extends React.Component {
   constructor(props)  {
     super(props)  
     this.state = {
@@ -26,7 +26,7 @@ class Timer extends React.Component {
   mmssStringfromSeconds(input_seconds) {
     let d = new Date(null)
     d.setSeconds(input_seconds)
-    return d.toISOString().substr(14,5) 
+    return d.toISOString().substr(14,5) // get 5 digits from the 14th index position
   }
 
   componentWillMount()  {
@@ -154,33 +154,83 @@ class Timer extends React.Component {
   render(){
     return (
       <View style={styles.container}>
-        <Text style = {styles.timerStatus}> {this.state.timerStatus} </Text>
-        <View style = {styles.timerContainer}> 
-          <Text style = {styles.timerText}> {this.state.displayMmSs}</Text>  
-        </View>
-         <View style = {{marginTop:25,}}>
-          <TouchableOpacity onPress = {this.startTimer} style = {styles.buttonStyle} >
-            <Text style = {styles.buttonText}>Start</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress = {this.pauseTimer} style = {styles.buttonStyle} >
-            <Text style = {styles.buttonText}>Pause</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress = {this.stopTimer} style = {styles.buttonStyle} >
-            <Text style = {styles.buttonText}>Stop</Text>
-          </TouchableOpacity>
-         </View>
+
+        <Settings />
+        
+        <Timer 
+          timerStatusProp = {this.state.timerStatus}
+          displayProp = {this.state.displayMmSs}
+        />
+
+        <Buttons
+        startTimerProp = {this.startTimer}
+        pauseTimerProp = {this.pauseTimer}
+        stopTimerProp = {this.stopTimer}
+        />
+         
       </View>
     )
   }
 }
 
-export default class App extends React.Component {
-  render() {
-    return (
-      <Timer />
-    );
-  }
-}
+// class Settings extends React.Component  {
+//   constructor() {
+//     super()
+//     this.state = {
+//       pSetting: 5,
+//       bSetting: 3,
+//     }
+//   }
+//   render()  {
+//     return  (
+//       <View style = {styles.settings}>
+//         <Text>Pomodoro Setting</Text>
+//         <TextInput 
+//         onChangeText = { 
+//           text => this.setState({
+//             pSetting: text,
+//           })
+//         }
+//         value = {this.state.pSetting}
+//         />
+//         <Text>Break Setting</Text>
+//         <TextInput 
+//         onChangeText = { 
+//           text => this.setState({
+//             bSetting: text,
+//           })
+//         }
+//         value = {this.state.bSetting}
+//         />
+
+//       </View>
+//     )
+//   }
+// }
+
+const Buttons = props => (
+  <View style = {styles.buttonContainer}>
+    <TouchableOpacity onPress = {props.startTimerProp} style = {styles.buttonStyle} >
+      <Text style = {styles.buttonText}>Start</Text>
+    </TouchableOpacity>
+    <TouchableOpacity onPress = {props.pauseTimerProp} style = {styles.buttonStyle} >
+      <Text style = {styles.buttonText}>Pause</Text>
+    </TouchableOpacity>
+    <TouchableOpacity onPress = {props.stopTimerProp} style = {styles.buttonStyle} >
+      <Text style = {styles.buttonText}>Stop</Text>
+    </TouchableOpacity>
+  </View>
+)
+
+const Timer = props => (
+  <View>
+    <Text style = {styles.timerStatus}> {props.timerStatusProp} </Text>
+    <View style = {styles.timerContainer}> 
+      <Text style = {styles.timerText}> {props.displayProp}</Text>  
+    </View>
+  </View>
+
+)
 
 const styles = StyleSheet.create({
   container: {
@@ -190,7 +240,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonStyle: {
-    
     marginBottom:5,
     height: 60,
     width: 180,
@@ -200,6 +249,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#24a0ed',
     borderRadius:5
   },
+
+  settings:
+  {
+
+  },
+
+  buttonContainer:
+  {
+    marginTop:40,
+  },
+
   buttonText:
   {
     fontSize:30,
@@ -213,7 +273,7 @@ const styles = StyleSheet.create({
 
   },
   timerText: {
-    fontSize:90,
+    fontSize:110,
     // color: '#ffffff',
     textAlign: 'center'
   },
@@ -221,7 +281,7 @@ const styles = StyleSheet.create({
     fontSize:30,
     color: 'tomato',
     textAlign: 'center',
-    marginBottom: 50,
+    marginTop: 20,
     fontWeight:'bold',
   },
 });
