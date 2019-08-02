@@ -19,6 +19,7 @@ class Timer extends React.Component {
       displayMmSs: null,
       screenBlank:true,
       paused: false,
+      timerStatus: "Stopped"
     }
   }
 
@@ -42,8 +43,9 @@ class Timer extends React.Component {
     
     if (this.state.displayTimer) clearInterval(this.state.displayTimer)
 
-    
     this.displayTimer = setInterval(()=>{this.decrementSeconds()}, 1000)
+    
+    // this.displayTimer = setTimeout(()=> this.decrementSeconds(),pomodoroSetting*1000)
     
     this.setState(  {
       displayTimer: this.displayTimer,
@@ -52,7 +54,8 @@ class Timer extends React.Component {
   }
 
   decrementSeconds = () => {
-    if(this.state.countdownTimeSeconds<0)  {
+    // if either pomodoro or break time === 0 
+    if(this.state.countdownTimeSeconds===0)  {
       // Pomodoro has finished
       if (this.state.pomodoroRunning) {
         this.setState({
@@ -73,15 +76,35 @@ class Timer extends React.Component {
       this.switchTimer()
     }
 
-    // decrementSeconds
+    // neither timer has finished so we decrement 1 second
     else  {
       this.setState(
         prevState => ({
         countdownTimeSeconds: prevState.countdownTimeSeconds - 1, // minus by 1 sec
-        displayMmSs: this.mmssStringfromSeconds(this.state.countdownTimeSeconds),
+        displayMmSs: this.mmssStringfromSeconds(prevState.countdownTimeSeconds-1),
        })
       )
+
+      // debug
+      console.log("countdownTimeSeconds | displayMmSs")
+      console.log( this.state.countdownTimeSeconds, this.state.displayMmSs)
+      console.log("-----------------------------------")
     }
+
+    //show text alert for current timer status
+    if (this.state.pomodoroRunning) {
+      this.setState({
+        timerStatus: "Work timer running",
+      }
+      )
+    }
+    else  {
+      this.setState({
+        timerStatus: "Currently on a break",
+      }
+      )
+    }
+
   }
 
   switchTimer = () =>  {
@@ -103,6 +126,7 @@ class Timer extends React.Component {
     if (this.state.paused)  {
       this.setState({
         paused: !(this.state.paused),
+        timerStatus: "Paused",
       })
       clearInterval(this.state.displayTimer)
       this.startTimer()
@@ -111,6 +135,7 @@ class Timer extends React.Component {
       clearInterval(this.state.displayTimer)
       this.setState({
         paused: !(this.state.paused),
+        timerStatus: "Paused",
       })
     }
   }
@@ -118,13 +143,18 @@ class Timer extends React.Component {
   stopTimer = () => {
     clearInterval(this.state.displayTimer)
     this.setState({
-      countdownTimeSeconds:0,
+      // make timer restart the pomodoro loop
+      countdownTimeSeconds:pomodoroSetting,
       displayMmSs: this.mmssStringfromSeconds(0),
+      pomodoroRunning: false,
+      breakRunning: false,
+      timerStatus:"Stopped"
     })
   }
   render(){
     return (
       <View style={styles.container}>
+        <Text style = {styles.timerStatus}> {this.state.timerStatus} </Text>
         <View style = {styles.timerContainer}> 
           <Text style = {styles.timerText}> {this.state.displayMmSs}</Text>  
         </View>
@@ -186,5 +216,12 @@ const styles = StyleSheet.create({
     fontSize:90,
     // color: '#ffffff',
     textAlign: 'center'
+  },
+  timerStatus: {
+    fontSize:30,
+    color: 'tomato',
+    textAlign: 'center',
+    marginBottom: 50,
+    fontWeight:'bold',
   },
 });
